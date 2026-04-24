@@ -1,0 +1,167 @@
+//
+//  InternalVisionView.swift
+//  iOSInternals
+    
+
+import SwiftUI
+
+
+
+struct StickerEffectDemoView: View {
+    var body: some View {
+        Form {
+            Section {
+                StickerEffect(effect: .iridescent)
+                    .listRowInsets(EdgeInsets())
+                    .frame(width: 250, height: 250)
+                    .listRowBackground(Color.clear)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    func checkImageAnalysis() {
+        let frameworkPath = "/System/Library/PrivateFrameworks/VisionKitCore.framework/VisionKitCore"
+        let handler = dlopen(frameworkPath, RTLD_NOW)
+        
+        let VKCStickerEffect = NSClassFromString("VKCStickerEffect") as! NSObject.Type
+        let strokeEffect = VKCStickerEffect.value(forKey: "strokeEffect") as! NSObject
+
+        let applySelector = NSSelectorFromString("applyToImage:")
+        let image: Data = UIImage(resource: .logo).pngData()!
+        let completionHandler: (AnyObject) -> Void = {
+            print("Got something back", $0)
+        }
+        strokeEffect.perform(applySelector, with: image, with: completionHandler)
+        print("Request Successful")
+    }
+}
+
+struct StickerEffect: UIViewRepresentable {
+    var effect: StickEffect = .comic
+    
+    func makeUIView(context: Context) -> UIView {
+        let frameworkPath = "/System/Library/PrivateFrameworks/VisionKitCore.framework/VisionKitCore"
+        let handler = dlopen(frameworkPath, RTLD_NOW)
+        
+        let VKCStickerEffect = NSClassFromString("VKCStickerEffect") as! NSObject.Type
+        let effect = VKCStickerEffect.value(forKey: effect.className) as! NSObject
+        let image = UIImage(resource: .kawaii)
+        
+        
+        
+        let controller = NSClassFromString("VKCStickerEffectView") as! UIView.Type
+        let instance = controller.init()
+        
+        instance.setValue(image, forKey: "image")
+        instance.setValue(effect, forKey: "effect")
+        instance.setValue(false, forKey: "paused")
+        
+        
+        
+        return instance
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+enum StickEffect {
+    case comic
+    case puffy
+    case stroke
+    case iridescent
+    case none
+    
+    var className: String {
+        switch self {
+        case .comic: return "comicEffect"
+        case .puffy: return "puffyEffect"
+        case .stroke: return "strokeEffect"
+        case .iridescent: return "iridescentEffect"
+        case .none: return "noneEffect"
+        }
+    }
+}
+/*
+ @class _VKStickerEffectInternal, VKCStickerEffectView;
+
+ @interface VKCStickerEffect : NSObject
+
+ @property (readonly, nonatomic) _VKStickerEffectInternal *internalEffect;
+ @property (retain, nonatomic) VKCStickerEffectView *viewForRendering;
+ @property (nonatomic) unsigned long long type;
+ @property (nonatomic) unsigned long long iridescence;
+ @property (nonatomic) BOOL isStroked;
+ @property (nonatomic) double strokeRadius;
+ @property (nonatomic) float strokeBlurRadius;
+ @property (nonatomic) float smallStrokeRadiusMultiplier;
+ @property (nonatomic) float smallShadowSizeMultiplier;
+ @property (nonatomic) float smallShadowAlphaMultiplier;
+ @property (nonatomic) BOOL isPuffy;
+ @property (nonatomic) double normalsRadius;
+ @property (nonatomic) BOOL isBrushed;
+ @property (nonatomic) BOOL applyBrushBeforeStroke;
+ @property (nonatomic) BOOL applyIridescenceBeforeStroke;
+ @property (nonatomic) double shadowRadius;
+ @property (nonatomic) struct CGPoint { double x; double y; } shadowOffset;
+ @property (nonatomic) struct CGPoint { double x; double y; } shadowParallax;
+ @property (nonatomic) BOOL isComicEnabled;
+ @property (nonatomic) BOOL isInkEnabled;
+ @property (nonatomic) BOOL isCurlEnabled;
+ @property (nonatomic) BOOL forceSmallStrokeRadiusMultiplier;
+ @property (readonly, nonatomic) BOOL requiresDeviceMotion;
+
+ + (id)effectWithType:(unsigned long long)a0;
+ + (id)comicEffect;
+ + (id)effectFromInternalEffect:(id)a0;
+ + (int)internalIridescenceFromVKC:(unsigned long long)a0;
+ + (id)iridescentEffect;
+ + (id)noneEffect;
+ + (id)puffyEffect;
+ + (id)strokeEffect;
+ + (unsigned long long)vkcIridescenceFromInternal:(int)a0;
+
+ - (id)initInternal;
+ - (id)description;
+ - (void)applyToImage:(id)a0 completion:(id /* block */)a1;
+ - (void)_applyToImage:(id)a0 completion:(id /* block */)a1;
+ - (void)_applyToImageSequence:(id)a0 progressHandler:(id /* block */)a1 completionHandler:(id /* block */)a2;
+ - (void)applyToImageSequence:(id)a0 progressHandler:(id /* block */)a1 completionHandler:(id /* block */)a2;
+ */
+
+/*
+ @class VKCStickerEffect, CADisplayLink, UIImage, UIView, NSData, VKCStickerVideoDecoder;
+ @protocol VKStickerEffectViewInternal;
+ 
+ @interface VKCStickerEffectView : UIView <VKCStickerVideoDecoderDelegate> {
+ struct CGSize { double width; double height; } _size;
+ UIImage *_fullSizeImage;
+ CADisplayLink *_displayLink;
+ double _startTimeInterval;
+ }
+ 
+ @property (retain, nonatomic) UIView<VKStickerEffectViewInternal> *internalView;
+ @property (retain, nonatomic) VKCStickerVideoDecoder *videoDecoder;
+ @property (retain, nonatomic) UIImage *_image;
+ @property (nonatomic) double curlPosition;
+ @property (retain, nonatomic) VKCStickerEffect *effect;
+ @property (retain, nonatomic) UIImage *image;
+ @property (retain, nonatomic) NSData *videoData;
+ @property (nonatomic, getter=isPaused) BOOL paused;
+ 
+ + (double)extraScaleToIncludeStrokeWithEffectType:(long long)a0 bounds:(struct CGRect { struct CGPoint { double x0; double x1; } x0; struct CGSize { double x0; double x1; } x1; })a1;
+ 
+ - (id)initWithDevice:(id)a0;
+ - (void)displayLinkFired:(id)a0;
+ - (void)didMoveToWindow;
+ - (struct CGSize { double x0; double x1; })intrinsicContentSize;
+ - (void)layoutSubviews;
+ - (id)init;
+ - (void)snapshotWithCompletionHandler:(id /* block */)a0;
+ - (BOOL)boundsIncludeStroke;
+ - (id)imageWithImage:(id)a0 scaledToSize:(struct CGSize { double x0; double x1; })a1;
+ - (void)initialProcessingCompleteForDecoder:(id)a0;
+ - (void)playSettlingAnimation;
+ - (void)setBoundsIncludeStroke:(BOOL)a0;
+ - (void)startPlaybackIfNecessary;
+ */
