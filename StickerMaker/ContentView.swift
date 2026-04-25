@@ -16,14 +16,39 @@ struct ContentView: View {
 
     
     var body: some View {
-        ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+        GeometryReader { proxy in
+            if let previewImage {
+                let previewSide = min(proxy.size.width * 0.82, proxy.size.height * 0.68, 330)
 
-            previewStage
-                .padding(.horizontal, 28)
-                .padding(.top, hasImage ? 66 : 48)
-                .padding(.bottom, hasImage ? 116 : 48)
+                StickerEffectView(image: previewImage, effect: viewModel.selectedEffect)
+                    .frame(width: previewSide, height: previewSide)
+                    .scaleEffect(isResettingSticker ? 0.72 : 1)
+                    .rotationEffect(.degrees(isResettingSticker ? -5 : 0))
+                    .opacity(isResettingSticker ? 0 : 1)
+                    .blur(radius: isResettingSticker ? 7 : 0)
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .scale(scale: 0.94)),
+                        removal: .opacity.combined(with: .scale(scale: 0.72))
+                    ))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            } else {
+                emptyPicker
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .padding(.bottom, 100)
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .scale(scale: 1.04)),
+                        removal: .opacity.combined(with: .scale(scale: 0.96))
+                    ))
+            }
+
+            if isDropTargeted && !hasImage {
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .strokeBorder(Color.secondary.opacity(0.35), style: StrokeStyle(lineWidth: 2, dash: [8, 8]))
+                    .padding(5)
+                    .transition(.opacity)
+            }
         }
+        .contentShape(Rectangle())
         .overlay(alignment: .topTrailing) {
             if hasImage {
                 topActions
@@ -44,67 +69,37 @@ struct ContentView: View {
         .onChange(of: viewModel.state) { _, newValue in
             if case let .error(message) = newValue {
                 presentToast(
-                    ToastValue(
-                        icon: Image(systemName: "exclamationmark.triangle"),
-                        message: message
-                    )
+                    .init(icon: Image(systemName: "exclamationmark.triangle").foregroundStyle(.red),
+                          message: message
+                         )
                 )
             }
         }
         .animation(.spring(response: 0.42, dampingFraction: 0.82), value: viewModel.state)
+        .onDrop(of: [UTType.image.identifier], isTargeted: $isDropTargeted, perform: handleImageDrop)
     }
     
 
-    private var previewStage: some View {
-        GeometryReader { proxy in
-            ZStack {
-                if let previewImage {
-                    let previewSide = min(proxy.size.width * 0.82, proxy.size.height * 0.68, 330)
-
-                    StickerEffectView(image: previewImage, effect: viewModel.selectedEffect)
-                        .frame(width: previewSide, height: previewSide)
-                        .scaleEffect(isResettingSticker ? 0.72 : 1)
-                        .rotationEffect(.degrees(isResettingSticker ? -5 : 0))
-                        .opacity(isResettingSticker ? 0 : 1)
-                        .blur(radius: isResettingSticker ? 7 : 0)
-                        .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .scale(scale: 0.94)),
-                            removal: .opacity.combined(with: .scale(scale: 0.72))
-                        ))
-                } else {
-                    emptyPicker
-                        .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .scale(scale: 1.04)),
-                            removal: .opacity.combined(with: .scale(scale: 0.96))
-                        ))
-                }
-
-                if isDropTargeted && !hasImage {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .strokeBorder(Color.secondary.opacity(0.35), style: StrokeStyle(lineWidth: 2, dash: [8, 8]))
-                        .padding(4)
-                        .transition(.opacity)
-                }
-            }
-            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(Rectangle())
-        .onDrop(of: [UTType.image.identifier], isTargeted: $isDropTargeted, perform: handleImageDrop)
-    }
 
     
     private var emptyPicker: some View {
-        
-        PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
-            Text("Select Image")
-                .font(.system(size: 16.4, weight: .semibold))
-                .foregroundStyle(.primary)
-                .padding(.horizontal, 21)
-                .padding(.vertical, 12)
-                .background(Color(.tertiarySystemFill), in: Capsule())
+        VStack(spacing: 0) {
+            Image(.mockStickerIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 300, height: 300)
+
+                PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
+                    Text("Select Image")
+                        .font(.system(size: 16.4, weight: .semibold))
+                        .foregroundStyle(.primary)
+                        .padding(.horizontal, 21)
+                        .padding(.vertical, 12)
+                        .background(Color(.tertiarySystemFill), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .offset(y: -25)
         }
-        .buttonStyle(.plain)
     }
 
     
@@ -149,11 +144,11 @@ struct ContentView: View {
     private func finishSticker() {
         guard hasImage else { return }
 
+        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         withAnimation(.easeInOut(duration: 0.24)) {
             isResettingSticker = true
         }
 
-        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(220))
 
@@ -166,17 +161,11 @@ struct ContentView: View {
 
     private func saveSticker() async {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        do {
-            try await viewModel.saveToPhotos()
-            presentToast(
-                ToastValue(
-                    icon: Image(systemName: "checkmark.circle"),
-                    message: "Saved to Photos"
-                )
-            )
-        } catch {
-            // The view model publishes the error state, which drives the toast above.
-        }
+        let success = await viewModel.saveToPhotos()
+        if !success { return }
+        presentToast(
+            .init(message: "Image saved!")
+        )
     }
     
     

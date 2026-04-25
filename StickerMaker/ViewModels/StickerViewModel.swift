@@ -5,6 +5,7 @@
 
 import SwiftUI
 import PhotosUI
+import Toasts
 
 @MainActor
 @Observable
@@ -126,19 +127,17 @@ final class StickerViewModel {
     }
 
     
-    
-    // MARK: - Export
-
-    func saveToPhotos() async throws {
-        guard let stickerImage else { return }
+    func saveToPhotos() async -> Bool {
+        guard let stickerImage else { return false }
         state = .exporting
         
         do {
             try await StickerExporter.saveToPhotos(stickerImage)
             state = .effectApplied
+            return true
         } catch {
             state = .error(error.localizedDescription)
-            throw error
+            return false
         }
     }
 
