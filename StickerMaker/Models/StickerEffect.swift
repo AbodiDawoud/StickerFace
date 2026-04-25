@@ -1,36 +1,25 @@
 //
 //  StickerEffect.swift
 //  StickerMaker
-//
 
 import Foundation
 
-enum StickerEffectType: String, CaseIterable, Identifiable {
+enum StickerEffect: String, CaseIterable, Identifiable {
     case none
     case stroke
-    case puffy
     case comic
+    case puffy
     case iridescent
 
     var id: String { rawValue }
 
     var displayName: String {
         switch self {
-        case .none: return "None"
-        case .stroke: return "Stroke"
-        case .puffy: return "Puffy"
+        case .none: return "Original"
+        case .stroke: return "Outline"
         case .comic: return "Comic"
-        case .iridescent: return "Iridescent"
-        }
-    }
-
-    var iconName: String {
-        switch self {
-        case .none: return "circle.dashed"
-        case .stroke: return "scribble"
-        case .puffy: return "cloud.fill"
-        case .comic: return "camera.filters"
-        case .iridescent: return "sparkle"
+        case .puffy: return "Puffy"
+        case .iridescent: return "Shiny"
         }
     }
 

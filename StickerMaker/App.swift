@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import Toasts
 
 @main
 struct StickerMakerApp: App {
@@ -17,7 +18,7 @@ struct StickerMakerApp: App {
             NavigationStack {
                 ContentView()
             }
-            .preferredColorScheme(.dark)
+            .installToast(position: .top)
         }
     }
 }
