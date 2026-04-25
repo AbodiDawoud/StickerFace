@@ -13,14 +13,14 @@ struct ContentView: View {
     @State private var viewModel = StickerViewModel()
     @State private var isDropTargeted = false
     @State private var isResettingSticker = false
-
+    @State private var isDragging: Bool = false
     
     var body: some View {
         GeometryReader { proxy in
             if let previewImage {
                 let previewSide = min(proxy.size.width * 0.82, proxy.size.height * 0.68, 330)
 
-                StickerEffectView(image: previewImage, effect: viewModel.selectedEffect)
+                StickerEffectView(image: displayImage ?? previewImage, effect: displayEffect)
                     .frame(width: previewSide, height: previewSide)
                     .scaleEffect(isResettingSticker ? 0.72 : 1)
                     .rotationEffect(.degrees(isResettingSticker ? -5 : 0))
@@ -30,6 +30,11 @@ struct ContentView: View {
                         insertion: .opacity.combined(with: .scale(scale: 0.94)),
                         removal: .opacity.combined(with: .scale(scale: 0.72))
                     ))
+                    .onDrag {
+                        dragProvider()
+                    } preview: {
+                        dragPreview
+                    }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
                 emptyPicker
@@ -105,6 +110,10 @@ struct ContentView: View {
     
     private var topActions: some View {
         HStack(spacing: 10) {
+            Toggle("Combine", isOn: combineBinding)
+                .toggleStyle(.button)
+                .buttonStyle(PillButtonStyle(isSelected: viewModel.isCombiningEffects))
+
             Button("Done", action: finishSticker)
                 .buttonStyle(PillButtonStyle())
 
@@ -120,6 +129,12 @@ struct ContentView: View {
     
 
     private func handleImageDrop(_ providers: [NSItemProvider]) -> Bool {
+        guard !isDragging else {
+            isDragging = false
+            isDropTargeted = false
+            return false
+        }
+
         guard let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) }) else {
             return false
         }
@@ -167,6 +182,54 @@ struct ContentView: View {
             .init(message: "Image saved!")
         )
     }
+
+    private func dragProvider() -> NSItemProvider {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        isDragging = true
+
+        guard let dragImage else {
+            isDragging = false
+            return NSItemProvider()
+        }
+
+        if let url = try? StickerExporter.temporaryFileURL(for: dragImage),
+           let provider = NSItemProvider(contentsOf: url) {
+            provider.suggestedName = "Sticker.png"
+            provider.registerDataRepresentation(forTypeIdentifier: UTType.png.identifier, visibility: .all) { completion in
+                completion(dragImage.pngData(), nil)
+                Task { @MainActor in
+                    isDragging = false
+                }
+                return nil
+            }
+            resetDraggingAfterDelay()
+            return provider
+        }
+
+        resetDraggingAfterDelay()
+
+        let provider = NSItemProvider(object: dragImage)
+        provider.suggestedName = "Sticker.png"
+        return provider
+    }
+
+    private func resetDraggingAfterDelay() {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(10))
+            isDragging = false
+        }
+    }
+
+    private var dragPreview: some View {
+        Group {
+            if let dragImage {
+                Image(uiImage: dragImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 150, height: 150)
+            }
+        }
+    }
     
     
     private var hasImage: Bool {
@@ -177,16 +240,39 @@ struct ContentView: View {
     private var previewImage: UIImage? {
         viewModel.subjectImage ?? viewModel.originalImage
     }
+
+    private var displayImage: UIImage? {
+        guard viewModel.isCombiningEffects else { return previewImage }
+        return viewModel.stickerImage ?? previewImage
+    }
+
+    private var displayEffect: StickerEffect {
+        viewModel.isCombiningEffects ? .none : viewModel.selectedEffect
+    }
+
+    private var dragImage: UIImage? {
+        viewModel.stickerImage ?? previewImage
+    }
+
+    private var combineBinding: Binding<Bool> {
+        Binding {
+            viewModel.isCombiningEffects
+        } set: { isEnabled in
+            Task { await viewModel.setCombiningEffects(isEnabled) }
+        }
+    }
 }
 
 private struct PillButtonStyle: ButtonStyle {
+    var isSelected = false
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(.primary)
+            .foregroundStyle(isSelected ? Color(.systemBackground) : Color.primary)
             .padding(.horizontal, 19)
             .padding(.vertical, 10)
-            .background(Color(.tertiarySystemFill), in: Capsule())
+            .background(isSelected ? Color.primary : Color(.tertiarySystemFill), in: Capsule())
             .opacity(configuration.isPressed ? 0.72 : 1)
     }
 }

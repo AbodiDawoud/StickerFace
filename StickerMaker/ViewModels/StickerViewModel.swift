@@ -15,6 +15,8 @@ final class StickerViewModel {
     var subjectImage: UIImage?       // Background removed
     var stickerImage: UIImage?        // Final sticker with effect
     var selectedEffect: StickerEffect = .none
+    var isCombiningEffects = false
+    private(set) var combinedEffects: [StickerEffect] = []
     var selectedPhotoItem: PhotosPickerItem?
     
     private(set) var effectPreviewImages: [StickerEffect: UIImage] = [:]
@@ -87,7 +89,7 @@ final class StickerViewModel {
         state = .applyingEffect
 
         do {
-            stickerImage = try await StickerEffectApplier.applyEffect(selectedEffect, to: subjectImage)
+            stickerImage = try await StickerEffectApplier.applyEffects(selectedEffects, to: subjectImage)
             state = .effectApplied
         } catch {
             // If private API fails, fall back to the subject image without effect
@@ -102,7 +104,33 @@ final class StickerViewModel {
         transaction.disablesAnimations = true
 
         withTransaction(transaction) {
-            selectedEffect = effect
+            updateSelection(with: effect)
+        }
+
+        await applyEffect()
+    }
+
+    func isEffectSelected(_ effect: StickerEffect) -> Bool {
+        if isCombiningEffects && combinedEffects.isEmpty {
+            return effect == .none
+        }
+
+        return selectedEffects.contains(effect)
+    }
+
+    func setCombiningEffects(_ isEnabled: Bool) async {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+
+        withTransaction(transaction) {
+            isCombiningEffects = isEnabled
+
+            if isEnabled {
+                combinedEffects = selectedEffect == .none ? [] : [selectedEffect]
+            } else {
+                selectedEffect = combinedEffects.last ?? selectedEffect
+                combinedEffects = []
+            }
         }
 
         await applyEffect()
@@ -148,7 +176,39 @@ final class StickerViewModel {
         stickerImage = nil
         selectedPhotoItem = nil
         selectedEffect = .none
+        isCombiningEffects = false
+        combinedEffects = []
         effectPreviewImages = [:]
+    }
+
+    private var selectedEffects: [StickerEffect] {
+        isCombiningEffects ? combinedEffects : [selectedEffect]
+    }
+
+    private func updateSelection(with effect: StickerEffect) {
+        guard isCombiningEffects else {
+            selectedEffect = effect
+            return
+        }
+
+        if effect == .none {
+            combinedEffects = []
+            selectedEffect = .none
+            return
+        }
+
+        combinedEffects.removeAll { $0 == .none }
+
+        if combinedEffects.contains(effect) {
+            combinedEffects.removeAll { $0 == effect }
+        } else {
+            if combinedEffects.count == 2 {
+                combinedEffects.removeFirst()
+            }
+            combinedEffects.append(effect)
+        }
+
+        selectedEffect = combinedEffects.last ?? .none
     }
 }
 

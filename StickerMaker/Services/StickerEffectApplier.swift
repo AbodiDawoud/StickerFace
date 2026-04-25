@@ -9,6 +9,15 @@
 import UIKit
 
 final class StickerEffectApplier {
+    static func applyEffects(_ effectTypes: [StickerEffect], to image: UIImage) async throws -> UIImage {
+        var renderedImage = image
+
+        for effectType in effectTypes where effectType != .none {
+            renderedImage = try await applyEffect(effectType, to: renderedImage)
+        }
+
+        return renderedImage
+    }
 
     /// Applies a sticker effect to the given image using VisionKitCore private APIs.
     static func applyEffect(_ effectType: StickerEffect, to image: UIImage) async throws -> UIImage {

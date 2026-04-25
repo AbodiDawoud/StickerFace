@@ -18,7 +18,7 @@ struct EffectPickerView: View {
                 ForEach(StickerEffect.allCases) { effect in
                     EffectButton(
                         effect: effect,
-                        isSelected: viewModel.selectedEffect == effect,
+                        isSelected: viewModel.isEffectSelected(effect),
                         previewImage: viewModel.previewImage(for: effect),
                         width: itemWidth
                     ) {
