@@ -74,9 +74,11 @@ struct ContentView: View {
         .onChange(of: viewModel.state) { _, newValue in
             if case let .error(message) = newValue {
                 presentToast(
-                    .init(icon: Image(systemName: "exclamationmark.triangle").foregroundStyle(.red),
-                          message: message
-                         )
+                    .init(icon: Image(systemName: "exclamationmark.circle.fill")
+                        .foregroundStyle(.red.gradient)
+                        .symbolRenderingMode(.hierarchical),
+                        message: message
+                    )
                 )
             }
         }
@@ -143,13 +145,16 @@ struct ContentView: View {
             guard let data else { return }
 
             Task { @MainActor in
-                await viewModel.handleImageData(data)
-                presentToast(
-                    ToastValue(
-                        icon: Image(systemName: "photo"),
-                        message: "Image loaded"
+                let didImportImage = await viewModel.handleImageData(data)
+
+                if didImportImage {
+                    presentToast(
+                        ToastValue(
+                            icon: Image(systemName: "photo"),
+                            message: "Image loaded"
+                        )
                     )
-                )
+                }
             }
         }
 

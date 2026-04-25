@@ -35,18 +35,28 @@ final class StickerViewModel {
                 return
             }
 
-            await handleImageData(data)
+            _ = await handleImageData(data)
         } catch {
             state = .error(error.localizedDescription)
         }
     }
 
-    func handleImageData(_ data: Data) async {
+    func handleImageData(_ data: Data) async -> Bool {
         state = .imageSelected
 
         guard let image = UIImage(data: data) else {
             state = .error("Could not load the selected image.")
-            return
+            return false
+        }
+
+        do {
+            guard try await FaceDetector.containsFace(in: image) else {
+                rejectImage(StickerError.noFaceDetected.localizedDescription)
+                return false
+            }
+        } catch {
+            rejectImage(error.localizedDescription)
+            return false
         }
 
         originalImage = image
@@ -55,6 +65,7 @@ final class StickerViewModel {
         effectPreviewImages = [:]
 
         await removeBackground()
+        return true
     }
 
     // MARK: - Background Removal
@@ -179,6 +190,15 @@ final class StickerViewModel {
         isCombiningEffects = false
         combinedEffects = []
         effectPreviewImages = [:]
+    }
+
+    private func rejectImage(_ message: String) {
+        originalImage = nil
+        subjectImage = nil
+        stickerImage = nil
+        selectedPhotoItem = nil
+        effectPreviewImages = [:]
+        state = .error(message)
     }
 
     private var selectedEffects: [StickerEffect] {

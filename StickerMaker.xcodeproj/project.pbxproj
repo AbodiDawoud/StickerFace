@@ -17,6 +17,7 @@
 		BD4CC8352F8F041500CB19EB /* StickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4CC81E2F8F041500CB19EB /* StickerViewModel.swift */; };
 		BD4CC8382F8F041500CB19EB /* EffectButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4CC8212F8F041500CB19EB /* EffectButton.swift */; };
 		BD52F01A2F9C53B90018DBC9 /* StickerEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52F0192F9C53B90018DBC9 /* StickerEffectView.swift */; };
+		BD52F0202F9C90000018DBC9 /* FaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52F01F2F9C90000018DBC9 /* FaceDetector.swift */; };
 		BD52F01D2F9C587F0018DBC9 /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = BD52F01C2F9C587F0018DBC9 /* Toasts */; };
 		BDDF45A02F8F9B1B00B37ADF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDDF459F2F8F9B1B00B37ADF /* Assets.xcassets */; };
 		BDE000052F9A000100CB19EB /* EffectPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE000042F9A000100CB19EB /* EffectPickerView.swift */; };
@@ -34,6 +35,7 @@
 		BD4CC8262F8F041500CB19EB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BD4CC8292F8F041500CB19EB /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		BD52F0192F9C53B90018DBC9 /* StickerEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerEffectView.swift; sourceTree = "<group>"; };
+		BD52F01F2F9C90000018DBC9 /* FaceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetector.swift; sourceTree = "<group>"; };
 		BDDF459F2F8F9B1B00B37ADF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BDE000042F9A000100CB19EB /* EffectPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectPickerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				BD4CC81A2F8F041500CB19EB /* BackgroundRemover.swift */,
+				BD52F01F2F9C90000018DBC9 /* FaceDetector.swift */,
 				BD4CC81B2F8F041500CB19EB /* StickerEffectApplier.swift */,
 				BD4CC81C2F8F041500CB19EB /* StickerExporter.swift */,
 			);
@@ -200,6 +203,7 @@
 				BD4CC8302F8F041500CB19EB /* StickerEffect.swift in Sources */,
 				BD4CC8312F8F041500CB19EB /* StickerEffectApplier.swift in Sources */,
 				BD4CC8322F8F041500CB19EB /* BackgroundRemover.swift in Sources */,
+				BD52F0202F9C90000018DBC9 /* FaceDetector.swift in Sources */,
 				BD52F01A2F9C53B90018DBC9 /* StickerEffectView.swift in Sources */,
 				BD4CC8352F8F041500CB19EB /* StickerViewModel.swift in Sources */,
 				BD4CC8382F8F041500CB19EB /* EffectButton.swift in Sources */,
