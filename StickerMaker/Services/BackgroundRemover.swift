@@ -14,13 +14,34 @@ final class BackgroundRemover {
 
     /// Uses Vision's person/subject segmentation as a fallback approach.
     static func removeBackgroundWithVision(from image: UIImage) async throws -> UIImage {
+        var lastError: Error?
+
+        for attempt in 1...3 {
+            do {
+                return try await performForegroundMaskRequest(on: image)
+            } catch {
+                lastError = error
+
+                guard attempt < 3 else { break }
+                try await Task.sleep(for: .milliseconds(180 * attempt))
+            }
+        }
+
+        throw lastError ?? StickerError.backgroundRemovalFailed
+    }
+
+    private static func performForegroundMaskRequest(on image: UIImage) async throws -> UIImage {
         guard let cgImage = image.cgImage else {
             throw StickerError.invalidImage
         }
 
         return try await withCheckedThrowingContinuation { continuation in
             let request = VNGenerateForegroundInstanceMaskRequest()
-            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+            let handler = VNImageRequestHandler(
+                cgImage: cgImage,
+                orientation: image.cgImagePropertyOrientation,
+                options: [:]
+            )
 
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
@@ -55,6 +76,31 @@ final class BackgroundRemover {
                     continuation.resume(throwing: error)
                 }
             }
+        }
+    }
+}
+
+private extension UIImage {
+    var cgImagePropertyOrientation: CGImagePropertyOrientation {
+        switch imageOrientation {
+        case .up:
+            return .up
+        case .upMirrored:
+            return .upMirrored
+        case .down:
+            return .down
+        case .downMirrored:
+            return .downMirrored
+        case .left:
+            return .left
+        case .leftMirrored:
+            return .leftMirrored
+        case .right:
+            return .right
+        case .rightMirrored:
+            return .rightMirrored
+        @unknown default:
+            return .up
         }
     }
 }

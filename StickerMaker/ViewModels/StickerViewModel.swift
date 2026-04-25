@@ -14,7 +14,7 @@ final class StickerViewModel {
     var originalImage: UIImage?       // Imported image, we should keep it unmodified
     var subjectImage: UIImage?       // Background removed
     var stickerImage: UIImage?        // Final sticker with effect
-    var selectedEffect: StickerEffect = .none
+    var selectedEffect: StickerEffect = .stroke
     var isCombiningEffects = false
     private(set) var combinedEffects: [StickerEffect] = []
     var selectedPhotoItem: PhotosPickerItem?
@@ -59,28 +59,26 @@ final class StickerViewModel {
             return false
         }
 
-        originalImage = image
+        originalImage = nil
         subjectImage = nil
         stickerImage = nil
         effectPreviewImages = [:]
 
-        await removeBackground()
+        await removeBackground(from: image)
         return true
     }
 
     // MARK: - Background Removal
 
-    func removeBackground() async {
-        guard let originalImage else { return }
-
+    private func removeBackground(from image: UIImage) async {
         state = .removingBackground
 
         do {
             // Try Vision-based segmentation first (more reliable)
-            subjectImage = try await BackgroundRemover.removeBackgroundWithVision(from: originalImage)
-            if let subjectImage {
-                effectPreviewImages = [.none: subjectImage]
-            }
+            let processedSubjectImage = try await BackgroundRemover.removeBackgroundWithVision(from: image)
+            originalImage = image
+            subjectImage = processedSubjectImage
+            effectPreviewImages = [.none: processedSubjectImage]
             state = .backgroundRemoved
 
             Task { await generateEffectPreviews() }

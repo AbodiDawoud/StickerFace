@@ -15,6 +15,10 @@ struct ContentView: View {
     @State private var isResettingSticker = false
     @State private var isDragging: Bool = false
     
+    @State private var hasSavedImg: Bool = false
+    @State private var isShowingDiscardConfirmation = false
+    @State private var hasConfirmedDoneDiscardThisSession = false
+    
     var body: some View {
         GeometryReader { proxy in
             if let previewImage {
@@ -74,16 +78,35 @@ struct ContentView: View {
         .onChange(of: viewModel.state) { _, newValue in
             if case let .error(message) = newValue {
                 presentToast(
-                    .init(icon: Image(systemName: "exclamationmark.circle.fill")
-                        .foregroundStyle(.red.gradient)
-                        .symbolRenderingMode(.hierarchical),
+                    .init(icon: Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.red.gradient),
                         message: message
                     )
                 )
             }
         }
+        .confirmationDialog(
+            "Discard this sticker?",
+            isPresented: $isShowingDiscardConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Discard Image", role: .destructive) {
+                hasConfirmedDoneDiscardThisSession = true
+                finishSticker()
+            }
+
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Your edited sticker has not been saved.")
+        }
         .animation(.spring(response: 0.42, dampingFraction: 0.82), value: viewModel.state)
         .onDrop(of: [UTType.image.identifier], isTargeted: $isDropTargeted, perform: handleImageDrop)
+        .onChange(of: hasSavedImg) {
+            if $1 == false { return } // if the new value is false, return
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                self.hasSavedImg = false
+            }
+        }
     }
     
 
@@ -109,6 +132,17 @@ struct ContentView: View {
         }
     }
 
+    private var processingView: some View {
+        VStack(spacing: 14) {
+            ProgressView()
+                .controlSize(.large)
+
+            Text("Preparing image")
+                .font(.system(size: 16.4, weight: .semibold))
+                .foregroundStyle(.secondary)
+        }
+    }
+
     
     private var topActions: some View {
         HStack(spacing: 10) {
@@ -116,7 +150,7 @@ struct ContentView: View {
                 .toggleStyle(.button)
                 .buttonStyle(PillButtonStyle(isSelected: viewModel.isCombiningEffects))
 
-            Button("Done", action: finishSticker)
+            Button("Done", action: handleDoneTapped)
                 .buttonStyle(PillButtonStyle())
 
             Button {
@@ -179,9 +213,20 @@ struct ContentView: View {
         }
     }
 
+    private func handleDoneTapped() {
+        guard hasImage else { return }
+
+        if hasConfirmedDoneDiscardThisSession || hasSavedImg {
+            finishSticker()
+        } else {
+            isShowingDiscardConfirmation = true
+        }
+    }
+
     private func saveSticker() async {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         let success = await viewModel.saveToPhotos()
+        self.hasSavedImg = success
         if !success { return }
         presentToast(
             .init(message: "Image saved!")

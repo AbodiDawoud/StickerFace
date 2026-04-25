@@ -17,8 +17,8 @@
 		BD4CC8352F8F041500CB19EB /* StickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4CC81E2F8F041500CB19EB /* StickerViewModel.swift */; };
 		BD4CC8382F8F041500CB19EB /* EffectButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4CC8212F8F041500CB19EB /* EffectButton.swift */; };
 		BD52F01A2F9C53B90018DBC9 /* StickerEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52F0192F9C53B90018DBC9 /* StickerEffectView.swift */; };
-		BD52F0202F9C90000018DBC9 /* FaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52F01F2F9C90000018DBC9 /* FaceDetector.swift */; };
 		BD52F01D2F9C587F0018DBC9 /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = BD52F01C2F9C587F0018DBC9 /* Toasts */; };
+		BD52F0202F9C90000018DBC9 /* FaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52F01F2F9C90000018DBC9 /* FaceDetector.swift */; };
 		BDDF45A02F8F9B1B00B37ADF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDDF459F2F8F9B1B00B37ADF /* Assets.xcassets */; };
 		BDE000052F9A000100CB19EB /* EffectPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE000042F9A000100CB19EB /* EffectPickerView.swift */; };
 /* End PBXBuildFile section */
@@ -346,8 +346,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Stickers;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "allow it";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "alllow it";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Photo library usage is required to save the generated sticker image";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -359,7 +358,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.app.NewStickerMaker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.app.StickerMaker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -384,8 +383,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Stickers;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "allow it";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "alllow it";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Photo library usage is required to save the generated sticker image";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -397,7 +395,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.app.NewStickerMaker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.app.StickerMaker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
