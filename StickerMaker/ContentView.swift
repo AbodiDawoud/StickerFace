@@ -114,7 +114,7 @@ struct ContentView: View {
     
     private var emptyPicker: some View {
         VStack(spacing: 0) {
-            Image(.mockStickerIcon)
+            Image(.stickerGroup)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 300, height: 300)
