@@ -19,6 +19,7 @@
 		BD52F01A2F9C53B90018DBC9 /* StickerEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52F0192F9C53B90018DBC9 /* StickerEffectView.swift */; };
 		BD52F01D2F9C587F0018DBC9 /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = BD52F01C2F9C587F0018DBC9 /* Toasts */; };
 		BD52F0202F9C90000018DBC9 /* FaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52F01F2F9C90000018DBC9 /* FaceDetector.swift */; };
+		BD52F0262F9CB0010018DBC9 /* SelfieCameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52F0252F9CB0010018DBC9 /* SelfieCameraPickerView.swift */; };
 		BDDF45A02F8F9B1B00B37ADF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDDF459F2F8F9B1B00B37ADF /* Assets.xcassets */; };
 		BDE000052F9A000100CB19EB /* EffectPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE000042F9A000100CB19EB /* EffectPickerView.swift */; };
 /* End PBXBuildFile section */
@@ -36,6 +37,7 @@
 		BD4CC8292F8F041500CB19EB /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		BD52F0192F9C53B90018DBC9 /* StickerEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerEffectView.swift; sourceTree = "<group>"; };
 		BD52F01F2F9C90000018DBC9 /* FaceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetector.swift; sourceTree = "<group>"; };
+		BD52F0252F9CB0010018DBC9 /* SelfieCameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfieCameraPickerView.swift; sourceTree = "<group>"; };
 		BDDF459F2F8F9B1B00B37ADF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BDE000042F9A000100CB19EB /* EffectPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectPickerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -101,6 +103,7 @@
 			children = (
 				BD4CC8212F8F041500CB19EB /* EffectButton.swift */,
 				BDE000042F9A000100CB19EB /* EffectPickerView.swift */,
+				BD52F0252F9CB0010018DBC9 /* SelfieCameraPickerView.swift */,
 				BD52F0192F9C53B90018DBC9 /* StickerEffectView.swift */,
 			);
 			path = Views;
@@ -204,6 +207,7 @@
 				BD4CC8312F8F041500CB19EB /* StickerEffectApplier.swift in Sources */,
 				BD4CC8322F8F041500CB19EB /* BackgroundRemover.swift in Sources */,
 				BD52F0202F9C90000018DBC9 /* FaceDetector.swift in Sources */,
+				BD52F0262F9CB0010018DBC9 /* SelfieCameraPickerView.swift in Sources */,
 				BD52F01A2F9C53B90018DBC9 /* StickerEffectView.swift in Sources */,
 				BD4CC8352F8F041500CB19EB /* StickerViewModel.swift in Sources */,
 				BD4CC8382F8F041500CB19EB /* EffectButton.swift in Sources */,
@@ -346,6 +350,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Stickers;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to take a selfie photo for sticker creation";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Photo library usage is required to save the generated sticker image";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -383,6 +388,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Stickers;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to take a selfie photo for sticker creation";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Photo library usage is required to save the generated sticker image";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

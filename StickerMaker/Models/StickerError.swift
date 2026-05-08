@@ -26,7 +26,7 @@ enum StickerError: LocalizedError {
         case .exportFailed:
             return "Failed to export the sticker."
         case .noFaceDetected:
-            return "No face detected."
+            return "No face detected"
         }
     }
 }

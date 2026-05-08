@@ -18,6 +18,7 @@ struct ContentView: View {
     @State private var hasSavedImg: Bool = false
     @State private var isShowingDiscardConfirmation = false
     @State private var hasConfirmedDoneDiscardThisSession = false
+    @State private var isShowingSelfieCamera = false
     
     var body: some View {
         GeometryReader { proxy in
@@ -99,6 +100,14 @@ struct ContentView: View {
         } message: {
             Text("Your edited sticker has not been saved.")
         }
+        .sheet(isPresented: $isShowingSelfieCamera) {
+            SelfieCameraPickerView { data in
+                Task {
+                    await viewModel.handleImageData(data)
+                }
+            }
+            .ignoresSafeArea()
+        }
         .animation(.spring(response: 0.42, dampingFraction: 0.82), value: viewModel.state)
         .onDrop(of: [UTType.image.identifier], isTargeted: $isDropTargeted, perform: handleImageDrop)
         .onChange(of: hasSavedImg) {
@@ -110,8 +119,6 @@ struct ContentView: View {
     }
     
 
-
-    
     private var emptyPicker: some View {
         VStack(spacing: 0) {
             Image(.stickerGroup)
@@ -119,6 +126,7 @@ struct ContentView: View {
                 .scaledToFit()
                 .frame(width: 300, height: 300)
 
+            VStack(spacing: 12) {
                 PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
                     Text("Select Image")
                         .font(.system(size: 16.4, weight: .semibold))
@@ -128,7 +136,20 @@ struct ContentView: View {
                         .background(Color(.tertiarySystemFill), in: Capsule())
                 }
                 .buttonStyle(.plain)
-                .offset(y: -25)
+
+                Button {
+                    isShowingSelfieCamera = true
+                } label: {
+                    Label("Take a Selfie Photo", systemImage: "camera.fill")
+                        .font(.system(size: 16.4, weight: .semibold))
+                        .foregroundStyle(.primary)
+                        .padding(.horizontal, 21)
+                        .padding(.vertical, 12)
+                        .background(Color(.tertiarySystemFill), in: Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            .offset(y: -25)
         }
     }
 

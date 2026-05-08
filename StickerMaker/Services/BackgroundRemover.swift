@@ -58,7 +58,14 @@ final class BackgroundRemover {
                     )
 
                     let ciImage = CIImage(cvPixelBuffer: maskPixelBuffer)
-                    let originalCI = CIImage(cgImage: cgImage)
+                    let orientedOriginalCI = CIImage(cgImage: cgImage)
+                        .oriented(image.cgImagePropertyOrientation)
+                    let originalCI = orientedOriginalCI.transformed(
+                        by: CGAffineTransform(
+                            translationX: -orientedOriginalCI.extent.origin.x,
+                            y: -orientedOriginalCI.extent.origin.y
+                        )
+                    )
 
                     let filter = CIFilter(name: "CIBlendWithMask")!
                     filter.setValue(originalCI, forKey: kCIInputImageKey)
