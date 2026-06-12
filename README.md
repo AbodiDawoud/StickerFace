@@ -13,7 +13,7 @@ StickerFace is a minimal SwiftUI app for turning photos and selfies into sticker
 
 <p>
   <img src="Screenshots/HomeScreen.png" width="260" alt="StickerFace home screen" />
-  <img src="Screenshots/EffectsScreen.png" width="260" alt="StickerFace effects screen" />
+  <img src="Screenshots/PreviewScreen.png" width="260" alt="StickerFace preview screen" />
 </p>
 
 ## Features
